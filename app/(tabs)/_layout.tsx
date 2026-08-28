@@ -11,7 +11,7 @@ const TAB = [
 ] as const
 
 const COLORS = {
-  primary: '#232e35',
+  primary: '#2563eb',
   inactive: '#64748b',
   background: '#ffffff'
 }
