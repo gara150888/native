@@ -1,70 +1,78 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Tabs } from 'expo-router';
-import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, components } from '@/constants/theme';
+import clsx from "clsx";
+import { Tabs } from "expo-router";
+import { Image, ImageSourcePropType, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const TAB = [
-  { name: 'index', title: 'Home', icon: 'home' },
-  { name: 'subscriptions', title: 'Subscriptions', icon: 'receipt-long' },
-  { name: 'insights', title: 'Insights', icon: 'show-chart' },
-  { name: 'settings', title: 'Settings', icon: 'settings' },
-] as const
+// import { useAuth } from '@clerk/expo';
+import { tabs } from "@/constants/data";
 
-const COLORS = {
-  primary: '#232e35',
-  inactive: '#64748b',
-  background: '#ffffff'
+const tabBar = components.tabBar;
+
+interface TabIconProps {
+  icon: ImageSourcePropType;
+  focused: boolean;
 }
 
-export default function TabLayout() {
-  const insets = useSafeAreaInsets()
-  const TabIcon = ({ focused, tab }: { focused: boolean, tab: (typeof TAB)[number] }) => {
-    return (
-      <View
-        style={{
-          width: 44,
-          height: 44,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 18,
-          backgroundColor: focused ? '#F1F5F9' : 'transparent',
-        }}
-      >
-        <MaterialIcons
-          name={tab.icon}
-          size={26}
-          color={focused ? COLORS.primary : COLORS.inactive}
-        />
+const TabIcon = ({ focused, icon }: TabIconProps) => {
+  return (
+    <View className="tabs-icon">
+      <View className={clsx('tabs-pill', focused && 'tabs-active')}>
+        <Image source={icon} resizeMode="contain" className="tabs-glyph" />
       </View>
-    )
-  }
+    </View>
+  );
+};
+const TabLayout = () => {
+  // const { isSignedIn, isLoaded } = useAuth();
+  const insets = useSafeAreaInsets();
+
+  // if (!isLoaded) {
+  //   return null;
+  // }
+
+  // if (!isSignedIn) {
+  //   return <Redirect href="/(auth)/sign-in" />;
+  // }
+
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          elevation: 0,
-          borderTopWidth: 0,
           position: 'absolute',
-          bottom: Math.max(insets.bottom, 8),
-          backgroundColor: COLORS.background
+          bottom: Math.max(insets.bottom, tabBar.horizontalInset),
+          height: tabBar.height,
+          marginHorizontal: tabBar.horizontalInset,
+          borderRadius: tabBar.radius,
+          backgroundColor: colors.primary,
+          borderTopWidth: 0,
+          elevation: 0,
         },
         tabBarItemStyle: {
-          height: 64,
-          paddingVertical: 4,
+          paddingVertical: tabBar.height / 2 - tabBar.iconFrame / 1.6
         },
-        headerShown: false,
-      }}>
-      {TAB.map((tab) => (
+        tabBarIconStyle: {
+          width: tabBar.iconFrame,
+          height: tabBar.iconFrame,
+          alignItems: 'center'
+        }
+      }}
+    >
+      {tabs.map((tab) => (
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
           options={{
             title: tab.title,
-            tabBarIcon: ({ focused }) => <TabIcon focused={focused} tab={tab} />
-          }}
-        />
+            tabBarIcon: ({ focused }) => (
+              <TabIcon focused={focused} icon={tab.icon} />
+            )
+          }} />
       ))}
     </Tabs>
-  );
+  )
 }
+
+export default TabLayout;
